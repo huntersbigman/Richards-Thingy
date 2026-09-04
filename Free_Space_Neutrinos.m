@@ -90,17 +90,7 @@ UnitaryMatrix=[Ue1  ,Ue2  ,Ue3  ;
 
 UnitaryMatrixInverse = inv(UnitaryMatrix); %Final Unitary Matrix Inverse
 
-%% Unsure if this function is correct
-%function Output = NonDirectProbability(Initial,Length,Energy,dm21,dm31,U)
-%Probability of particle being in same initial state (Non-Direct)
-%phi1=0;
-%phi2=1.267*dm21*Length/Energy;
-%phi3=1.267*dm31*Length/Energy;
-%phase_vector=[exp(-1i*phi1);exp(-1i*phi2);exp(-1i*phi3)];
-%PhaseDiagonal=diag(phase_vector);
-%FlavorEvolutionMatrix=U*PhaseDiagonal*U';%This is the Full Flavor Evolution Matrix
-%Output=FlavorEvolutionMatrix(Initial,Initial);
-%end 
+
 
 %% Direct Survival Probability function
 function DICK(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_input)
