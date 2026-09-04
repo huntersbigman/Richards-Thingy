@@ -90,10 +90,8 @@ UnitaryMatrix=[Ue1  ,Ue2  ,Ue3  ;
 
 UnitaryMatrixInverse = inv(UnitaryMatrix); %Final Unitary Matrix Inverse
 
-
-
 %% Direct Survival Probability function
-function DistProb = DICK(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_input)
+function [Prob,Dist] = DICK(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_input)
     sum1 = 0;
     sum2 = 0;
     xdih = 1:10000:400000000;
@@ -114,7 +112,8 @@ function DistProb = DICK(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squ
         sum1=0;
         sum2=0;
     end
-    DistProb = dih;
+    Prob = dih;
+    Dist = xdih;
     i=1:40000;
     plot(xdih(i),dih(i),LineWidth=2)
 end
@@ -123,11 +122,12 @@ end
 sigma_x = sigma_x_solar;
 Energy2=5; %keV
 Ljk_coh=L_coh_solar;
-DP12 = DICK(alpha,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
+[P12,x12] = DICK(alpha,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
 hold on
-DP23 = DICK(beta,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
-DP13 = DICK(alpha,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
-DP21 = DICK(beta,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
-DP32 = DICK(gamma,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
-DP31 = DICK(gamma,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
+[P23,x23] = DICK(beta,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
+[P13,x13] = DICK(alpha,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
+[P21,x21] = DICK(beta,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
+[P32,x32] = DICK(gamma,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
+[P31,x31] = DICK(gamma,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
 legend('alphabeta','betagamma','alphagamma','betaalpha','gammabeta','gammaalpha')
+
