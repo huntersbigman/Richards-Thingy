@@ -122,6 +122,7 @@ end
 sigma_x = sigma_x_solar;
 Energy2=5; %keV
 Ljk_coh=L_coh_solar;
+figure(2)
 [P12,x12] = DICK(alpha,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
 hold on
 [P23,x23] = DICK(beta,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
@@ -131,3 +132,40 @@ hold on
 [P31,x31] = DICK(gamma,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
 legend('alphabeta','betagamma','alphagamma','betaalpha','gammabeta','gammaalpha')
 
+figure(399);
+
+subplot(2,3,1)
+plot(x12,P12,LineWidth=2,Color='cyan')
+xlabel("Distance (km)")
+ylabel("Probability")
+title("Muon to electron")
+
+subplot(2,3,2)
+plot(x13,P13,LineWidth=2,Color='blue')
+xlabel("Distance (km)")
+ylabel("Probability")
+title("Muon to Taon")
+
+subplot(2,3,3)
+plot(x23,P23,LineWidth=2,Color='red')
+xlabel("Distance (km)")
+ylabel("Probability")
+title("Electron to Taon")
+
+subplot(2,3,4)
+plot(x21,P21,LineWidth=2,Color='Green')
+xlabel("Distance (km)")
+ylabel("Probability")
+title("Electron to Muon")
+
+subplot(2,3,5)
+plot(x31,P31,LineWidth=2,Color='magenta')
+xlabel("Distance (km)")
+ylabel("Probability")
+title("Taon to Muon")
+
+subplot(2,3,6)
+plot(x32,P32,LineWidth=2,Color='yellow')
+xlabel("Distance (km)")
+ylabel("Probability")
+title("Taon to Electron")
