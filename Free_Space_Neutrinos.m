@@ -122,14 +122,18 @@ end
 sigma_x = sigma_x_solar;
 Energy2=5; %keV
 Ljk_coh=L_coh_solar;
+
+samplesize = 1000000; %to achieve sample spacing in function
+MaxDist = 100000000; %Distance to look up until
+
 figure(2)
-[P12,x12] = DICK(alpha,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
+[P12,x12] = DICK(alpha,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
 hold on
-[P23,x23] = DICK(beta,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
-[P13,x13] = DICK(alpha,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
-[P21,x21] = DICK(beta,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
-[P32,x32] = DICK(gamma,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
-[P31,x31] = DICK(gamma,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2);
+[P23,x23] = DICK(beta,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
+[P13,x13] = DICK(alpha,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
+[P21,x21] = DICK(beta,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
+[P32,x32] = DICK(gamma,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
+[P31,x31] = DICK(gamma,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
 legend('alphabeta','betagamma','alphagamma','betaalpha','gammabeta','gammaalpha')
 
 figure(399);
