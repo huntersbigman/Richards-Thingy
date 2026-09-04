@@ -32,6 +32,7 @@ dm13 = -dm31; %eV^2
 Del_m_jk_squared = [0    dm12 dm13;
             dm21 0    dm23;
             dm31 dm32 0   ]; %Matrix for Del_m
+% Cite "Review of Particle Physics*" *Particle Data Group* page 1334
 
 %% Mixing Levels
 theta12 = 33.7*pi/180; %Solar Mixing Levels
