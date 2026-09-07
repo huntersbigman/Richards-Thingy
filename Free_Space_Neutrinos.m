@@ -22,6 +22,8 @@ alpha=muon;
 beta=electron;
 gamma=taon; %Flavor Represenation in greek letters for ease of use
 
+flavor = ["Electron", "Muon", "Taon"];
+
 %% Change in neutrino masses from flavor change in ***m^2***
 dm21 = 7.49e-5;       % eV^2
 dm31 = 2.51e-3;       % eV^2
@@ -102,7 +104,7 @@ UnitaryMatrixInverse = inv(UnitaryMatrix); %Final Unitary Matrix Inverse
 %% As a function of energy
     % This is the same equation, using energy as a non-constant, and
     % changing operations to reflect so.
-function [Prob,Energyoutput] = ProbEnergy(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_lim,sizing,x)
+    function [Prob,Energyoutput] = ProbEnergy(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_lim,sizing,x)
     sum1 = 0;
     sum2 = 0;
     dih=0;
@@ -124,8 +126,6 @@ function [Prob,Energyoutput] = ProbEnergy(initial,final,UnitaryMatrix,UnitaryInv
     end
     Prob = dih;
     Energyoutput = Energydih;
-    i=1:sizing;
-    plot(Energydih(i),dih(i),LineWidth=2)
 end
 
 %% Direct Survival Probability function
@@ -169,86 +169,40 @@ Dist =       295; %Distance to look up until [km]
 
 MaxDist = Dist * 1e3 /1.973269804593e-7; %[eV^-1]
 
-figure(4)
-[P12,x12] = ProbEnergy(alpha,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-hold on
-[P23,x23] = ProbEnergy(beta,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-[P13,x13] = ProbEnergy(alpha,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-[P21,x21] = ProbEnergy(beta,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-[P32,x32] = ProbEnergy(gamma,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-[P31,x31] = ProbEnergy(gamma,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-legend('alphabeta','betagamma','alphagamma','betaalpha','gammabeta','gammaalpha')
+P = zeros(3,3,samplesize);
+E = zeros(3,3,samplesize);
+for a = 1:3
+    for b = 1:3
+        [Pout,Eout] = ProbEnergy(a,b,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
+        P(a,b,:) = Pout;
+        E(a,b,:) = Eout;
+    end
+end
 
-figure(399);
-subplot(2,3,1)
-plot(x12,P12,LineWidth=2,Color='cyan')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Muon to electron at "+Dist+" km")
+for a = 1:3
+    for b = 1:3
+        figure(10*a+b)
+        plot(squeeze(E(a,b,:)),squeeze(P(a,b,:)),LineWidth=2)
+        xlabel("Energy (eV)")
+        ylabel("Probability")
+        title(flavor(a)+" to "+flavor(b)+" at "+Dist+" km")
+    end
+end
 
-subplot(2,3,2)
-plot(x13,P13,LineWidth=2,Color='blue')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Muon to Taon at "+Dist+" km")
-
-subplot(2,3,3)
-plot(x23,P23,LineWidth=2,Color='red')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Electron to Taon at "+Dist+" km")
-
-subplot(2,3,4)
-plot(x21,P21,LineWidth=2,Color='Green')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Electron to Muon at "+Dist+" km")
-
-subplot(2,3,5)
-plot(x31,P31,LineWidth=2,Color='magenta')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Taon to Muon at "+Dist+" km")
-
-subplot(2,3,6)
-plot(x32,P32,LineWidth=2,Color='yellow')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Taon to Electron at "+Dist+" km")
-
-%% Plotting 2: Electric Boogaloo
-figure(401)
-plot(x12,P12,LineWidth=2,Color='cyan')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Muon to electron at "+Dist+" km")
-
-figure(402)
-plot(x13,P13,LineWidth=2,Color='blue')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Muon to Taon at "+Dist+" km")
-
-figure(403)
-plot(x23,P23,LineWidth=2,Color='red')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Electron to Taon at "+Dist+" km")
-
-figure(404)
-plot(x21,P21,LineWidth=2,Color='Green')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Electron to Muon at "+Dist+" km")
-
-figure(405)
-plot(x31,P31,LineWidth=2,Color='magenta')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Taon to Muon at "+Dist+" km")
-
-figure(406)
-plot(x32,P32,LineWidth=2,Color='yellow')
-xlabel("Energy (eV)")
-ylabel("Probability")
-title("Taon to Electron at "+Dist+" km")
+figure (4)
+for a = 1:3
+    for b = 1:3
+        if a == 1
+            n = 0;
+        elseif a == 2
+            n = 3;
+        elseif a == 3
+            n = 6;
+        end
+        subplot(3,3,n+b)
+        plot(squeeze(E(a,b,:)),squeeze(P(a,b,:)),LineWidth=2)
+        xlabel("Energy (eV)")
+        ylabel("Probability")
+        title(flavor(a)+" to "+flavor(b)+" at "+Dist+" km")
+    end
+end
