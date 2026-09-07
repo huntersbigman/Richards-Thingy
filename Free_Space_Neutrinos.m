@@ -81,7 +81,7 @@ Umu3= s23*c13;
 
 Utau1=s12*s23 - c12*c23*s13*exp_plusi_delta;
 Utau2=-c12*s23 - s12*c23*s13*exp_plusi_delta;
-Utau3=c23*c13;
+Utau3=c23*c13; %cite "Earth-Density Effects in LBL Experiments: A Comprehensive Review of Theory, Observations, and Future Directions" T. Pandit, B. S. Koranga
 
 %Final Unitary Matrix
 UnitaryMatrix=[Ue1  ,Ue2  ,Ue3  ; 
@@ -91,13 +91,13 @@ UnitaryMatrix=[Ue1  ,Ue2  ,Ue3  ;
 UnitaryMatrixInverse = inv(UnitaryMatrix); %Final Unitary Matrix Inverse
 
 %% Direct Survival Probability function
-function [Prob,Dist] = DICK(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_input)
+function [Prob,Dist] = DICK(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_input,sizing,xlim)
     sum1 = 0;
     sum2 = 0;
-    xdih = 1:10000:400000000;
+    xdih = 1:(xlim/sizing):xlim;
     dih=0;
-    for i = 1:40000
-        x = i*10000;
+    for i = 1:sizing
+        x = i*(xlim/sizing);
         for j = 1:3
             sum1 = sum1 + (abs((UnitaryMatrix(final,j))))^2*(abs(UnitaryMatrix(initial,j)))^2; %Baseline
             for k = 1:3
@@ -114,17 +114,20 @@ function [Prob,Dist] = DICK(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_
     end
     Prob = dih;
     Dist = xdih;
-    i=1:40000;
+    i=1:sizing;
     plot(xdih(i),dih(i),LineWidth=2)
 end
+
+%cite "INTRODUCTION TO NEUTRINO PHYSICS" P. Lipari 5.5 Equation (96)
 
 %% For the Plotting
 sigma_x = sigma_x_solar;
 Energy2=5; %keV
-Ljk_coh=L_coh_solar;
 
-samplesize = 1000000; %to achieve sample spacing in function
-MaxDist = 100000000; %Distance to look up until
+Ljk_coh=L_coh_reactor;
+
+samplesize = 100000; %to achieve sample spacing in function
+MaxDist =    10e8; %Distance to look up until
 
 figure(2)
 [P12,x12] = DICK(alpha,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
