@@ -38,6 +38,7 @@ Del_m_jk_squared = [0    dm12 dm13;
 theta12 = 33.7*pi/180; %Solar Mixing Levels
 theta13 = 8.5*pi/180;  %Reactor Mixing Levels
 theta23 = 48.0*pi/180; %Atmospheric Mixing Levels
+%Cite "Neutrino Oscillations in the Three Flavor Paradigm*" *Peter B. Denton* page 12
 
 %% More Constants
 %Solar neutrinos
