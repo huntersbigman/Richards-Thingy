@@ -22,6 +22,8 @@ alpha=muon;
 beta=electron;
 gamma=taon; %Flavor Represenation in greek letters for ease of use
 
+flavor = ["Electron", "Muon", "Taon"];
+
 %% Change in neutrino masses from flavor change in ***m^2***
 dm21 = 7.49e-5;       % eV^2
 dm31 = 2.51e-3;       % eV^2
@@ -42,14 +44,22 @@ theta23 = 48.0*pi/180; %Atmospheric Mixing Levels
 
 %% More Constants
 %Solar neutrinos
-L_coh_solar=10^8; %cm
-sigma_x_solar = 10^-7; %cm
+L_coh_solar_cm = 10^8; %cm
+L_coh_solar = L_coh_solar_cm * 1e2 /1.973269804593e-7; %[eV^-1]
+sigma_x_solar_cm = 10^-7; %cm
+sigma_x_solar = sigma_x_solar_cm * 1e2 /1.973269804593e-7; %[eV^-1]
+
 %Reactor
-L_coh_reactor=10^9; %cm
+L_coh_reactor_cm =10^9; %cm
+L_coh_reactor = L_coh_reactor_cm * 1e2 /1.973269804593e-7; %[eV^-1]
+
 %Accelarator
-L_coh_accelerator=10^21; %cm
+L_coh_accelerator_cm=10^21; %cm
+L_coh_accelerator = L_coh_accelerator_cm * 1e2 /1.973269804593e-7; %[eV^-1] 
+
 %Supernova
-L_coh_supernova=100; %cm
+L_coh_supernova_cm=100; %cm
+L_coh_supernova = L_coh_supernova_cm * 1e2 /1.973269804593e-7; %[eV^-1] 
 
 %serphant
 eta = 0.49; %m_mue^2 / m_pi^2
@@ -91,7 +101,36 @@ UnitaryMatrix=[Ue1  ,Ue2  ,Ue3  ;
 
 UnitaryMatrixInverse = inv(UnitaryMatrix); %Final Unitary Matrix Inverse
 
+%% As a function of energy
+    % This is the same equation, using energy as a non-constant, and
+    % changing operations to reflect so.
+    function [Prob,Energyoutput] = ProbEnergy(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_lim,sizing,x)
+    sum1 = 0;
+    sum2 = 0;
+    dih=0;
+    Energydih = linspace(1,Energy_lim,sizing);
+    for i = 1:sizing
+        for j = 1:3
+            sum1 = sum1 + (abs((UnitaryMatrix(final,j))))^2*(abs(UnitaryMatrix(initial,j)))^2; %Baseline Probability
+            for k = 1:3
+                if k>j
+                    Ljk_osc = 4*pi*Energydih / abs(Del_m_jk_squared(j,k)); % eV^-1
+                    %Using L_jk_coh as a constant
+                    sum2 = sum2 + (2*real(UnitaryInverse(initial,k)*UnitaryMatrix(initial,j)*UnitaryMatrix(final,k)*UnitaryInverse(final,j)*exp(1i*2*pi*x/(Ljk_osc(i)))))*exp(-((x/Ljk_coh)^2))*exp(-2*pi^2*eta^2*(sigma_x/Ljk_osc(i))^2);
+                end
+            end
+        end
+        dih(1,i) = sum1+sum2;
+        sum1=0;
+        sum2=0;
+    end
+    Prob = dih;
+    Energyoutput = Energydih;
+end
+
 %% Direct Survival Probability function
+    %The effects that we have discussed above can be included in the formula for the probability να → νβ
+    %using a wave packet, or more rigorously a quantum field theory treatment with the result [40]:
 function [Prob,Dist] = DICK(initial,final,UnitaryMatrix,UnitaryInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy_input,sizing,xlim)
     sum1 = 0;
     sum2 = 0;
@@ -122,95 +161,48 @@ end
 %cite "INTRODUCTION TO NEUTRINO PHYSICS" P. Lipari 5.5 Equation (96)
 
 %% For the Plotting
-sigma_x = sigma_x_solar;
-Energy2=5; %keV
+sigma_x =    sigma_x_solar;
+Energy2 =    0.1e9; %eV
+Ljk_coh =    L_coh_solar;
+samplesize = 10000; %to achieve sample spacing in function
+Dist =       295; %Distance to look up until [km]
 
-Ljk_coh=L_coh_reactor;
+MaxDist = Dist * 1e3 /1.973269804593e-7; %[eV^-1]
 
-samplesize = 100000; %to achieve sample spacing in function
-MaxDist =    10e8; %Distance to look up until
+P = zeros(3,3,samplesize);
+E = zeros(3,3,samplesize);
+for a = 1:3
+    for b = 1:3
+        [Pout,Eout] = ProbEnergy(a,b,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
+        P(a,b,:) = Pout;
+        E(a,b,:) = Eout;
+    end
+end
 
-figure(2)
-[P12,x12] = DICK(alpha,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-hold on
-[P23,x23] = DICK(beta,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-[P13,x13] = DICK(alpha,gamma,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-[P21,x21] = DICK(beta,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-[P32,x32] = DICK(gamma,beta,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-[P31,x31] = DICK(gamma,alpha,UnitaryMatrix,UnitaryMatrixInverse,Del_m_jk_squared,Ljk_coh,eta,sigma_x,Energy2,samplesize,MaxDist);
-legend('alphabeta','betagamma','alphagamma','betaalpha','gammabeta','gammaalpha')
+for a = 1:3
+    for b = 1:3
+        figure(10*a+b)
+        plot(squeeze(E(a,b,:)),squeeze(P(a,b,:)),LineWidth=2)
+        xlabel("Energy (eV)")
+        ylabel("Probability")
+        title(flavor(a)+" to "+flavor(b)+" at "+Dist+" km")
+    end
+end
 
-figure(399);
-
-subplot(2,3,1)
-plot(x12,P12,LineWidth=2,Color='cyan')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Muon to electron")
-
-subplot(2,3,2)
-plot(x13,P13,LineWidth=2,Color='blue')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Muon to Taon")
-
-subplot(2,3,3)
-plot(x23,P23,LineWidth=2,Color='red')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Electron to Taon")
-
-subplot(2,3,4)
-plot(x21,P21,LineWidth=2,Color='Green')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Electron to Muon")
-
-subplot(2,3,5)
-plot(x31,P31,LineWidth=2,Color='magenta')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Taon to Muon")
-
-subplot(2,3,6)
-plot(x32,P32,LineWidth=2,Color='yellow')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Taon to Electron")
-
-%% Plotting 2: Electric Boogaloo
-figure(401)
-plot(x12,P12,LineWidth=2,Color='cyan')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Muon to electron")
-
-figure(402)
-plot(x13,P13,LineWidth=2,Color='blue')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Muon to Taon")
-
-figure(403)
-plot(x23,P23,LineWidth=2,Color='red')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Electron to Taon")
-
-figure(404)
-plot(x21,P21,LineWidth=2,Color='Green')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Electron to Muon")
-
-figure(405)
-plot(x31,P31,LineWidth=2,Color='magenta')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Taon to Muon")
-
-figure(406)
-plot(x32,P32,LineWidth=2,Color='yellow')
-xlabel("Distance (km)")
-ylabel("Probability")
-title("Taon to Electron")
+figure (4)
+for a = 1:3
+    for b = 1:3
+        if a == 1
+            n = 0;
+        elseif a == 2
+            n = 3;
+        elseif a == 3
+            n = 6;
+        end
+        subplot(3,3,n+b)
+        plot(squeeze(E(a,b,:)),squeeze(P(a,b,:)),LineWidth=2)
+        xlabel("Energy (eV)")
+        ylabel("Probability")
+        title(flavor(a)+" to "+flavor(b)+" at "+Dist+" km")
+    end
+end
